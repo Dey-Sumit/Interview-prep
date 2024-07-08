@@ -55,7 +55,7 @@ const Carousel = ({
   const [activeIndex, setActiveIndex] = useState(loop ? 1 : 0);
   const [transitionDuration, setTransitionDuration] = useState(300);
 
-  // const slides = React.Children.toArray(children);
+  //  const slides = React.Children.toArray(children);
   const slidesWithProps =
     React.Children.map(children, (child, index) =>
       React.cloneElement(child as React.ReactElement<any>, { slideIndex: index })
@@ -104,13 +104,14 @@ const Carousel = ({
       style={{ height: `${height}px`, width: `${width}px` }}
     >
       <div
-        className="flex h-full duration-300 transition-transform"
+        className="flex h-full transition-transform"
         style={{
           transform: `translateX(-${activeIndex * 100}%)`,
           transitionDuration: `${transitionDuration}ms`,
         }}
         onTransitionEnd={handleTransitionEnd}
       >
+        {/* 2 0 1 2 0         */}
         {loop && slidesWithProps[totalSlides - 1]}
 
         {slidesWithProps?.map((slide, index) => (
