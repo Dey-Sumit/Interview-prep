@@ -6,6 +6,26 @@
 </Carousel>; */
 }
 
+export const darkTailwindBgColors = [
+  "bg-gray-800",
+  "bg-red-800",
+  "bg-yellow-800",
+  "bg-green-800",
+  "bg-blue-800",
+  "bg-indigo-800",
+  "bg-purple-800",
+  "bg-pink-800",
+  "bg-gray-900",
+  "bg-red-900",
+  "bg-yellow-900",
+  "bg-green-900",
+  "bg-blue-900",
+  "bg-indigo-900",
+  "bg-purple-900",
+  "bg-pink-900",
+  "bg-gray-950",
+];
+
 /*
 - state to keep active index
 - navigation buttons
@@ -14,6 +34,7 @@
 - render the children (row wise for now) 
 
 */
+
 import React, { useState, PropsWithChildren, ReactNode } from "react";
 
 type CarouselProps = {
@@ -29,66 +50,81 @@ const Carousel = ({
   withIndicators = true,
   height = 300,
   width = 600,
-  loop = false,
+  loop = true,
 }: CarouselProps) => {
   const [activeIndex, setActiveIndex] = useState(loop ? 1 : 0);
+  const [transitionDuration, setTransitionDuration] = useState(300);
 
-  const slides = React.Children.toArray(children);
-  const totalSlides = slides.length;
+  // const slides = React.Children.toArray(children);
+  const slidesWithProps =
+    React.Children.map(children, (child, index) =>
+      React.cloneElement(child as React.ReactElement<any>, { slideIndex: index })
+    ) || [];
+
+  const totalSlides = slidesWithProps?.length || 0;
+
   const onPrev = () => {
-    setActiveIndex(
-      (currentActiveIndex) => (currentActiveIndex - 1 + slides.length) % slides.length
-    );
+    setTransitionDuration(300);
+    setActiveIndex((currentActiveIndex) => {
+      const newIndex = currentActiveIndex - 1;
+      if (loop) {
+        return newIndex < 0 ? totalSlides : newIndex;
+      }
+      return newIndex < 0 ? totalSlides - 1 : newIndex;
+    });
   };
 
   const onNext = () => {
-    setActiveIndex((currentActiveIndex) => (currentActiveIndex + 1) % slides.length);
+    setTransitionDuration(300);
+
+    setActiveIndex((currentActiveIndex) => {
+      const newIndex = currentActiveIndex + 1;
+      if (loop) {
+        return newIndex > totalSlides + 1 ? 0 : newIndex;
+      }
+      return newIndex > totalSlides - 1 ? 0 : newIndex;
+    });
   };
+
   const handleTransitionEnd = () => {
-    if (activeIndex === 0) {
-      setActiveIndex(slides.length);
-    } else if (activeIndex === slides.length + 1) {
-      setActiveIndex(1);
+    if (loop) {
+      if (activeIndex === 0) {
+        setTransitionDuration(0);
+        setActiveIndex(totalSlides);
+      } else if (activeIndex === totalSlides + 1) {
+        setTransitionDuration(0);
+        setActiveIndex(1);
+      }
     }
   };
 
-  // const onPrev = () => {
-  //   setActiveIndex((currentActiveIndex) => {
-  //     const newIndex = currentActiveIndex - 1;
-  //     return newIndex < 0 ? slides.length : newIndex;
-  //   });
-  // };
-
-  // const onNext = () => {
-  //   setActiveIndex((currentActiveIndex) => {
-  //     const newIndex = currentActiveIndex + 1;
-  //     return newIndex > slides.length ? 0 : newIndex;
-  //   });
-  // };
   return (
     <div
-      className="relative flex flex-col border-2 border-red-600 overflow-hidden"
+      className="relative flex flex-col border overflow-hidden "
       style={{ height: `${height}px`, width: `${width}px` }}
     >
       <div
         className="flex h-full duration-300 transition-transform"
         style={{
           transform: `translateX(-${activeIndex * 100}%)`,
+          transitionDuration: `${transitionDuration}ms`,
         }}
-        //  onTransitionEnd={handleTransitionEnd}
+        onTransitionEnd={handleTransitionEnd}
       >
-        {/* <div className="flex-shrink-0 flex-grow-0 basis-full">{slides[totalSlides - 1]}</div> */}
-        {slides.map((slide, index) => (
+        {loop && slidesWithProps[totalSlides - 1]}
+
+        {slidesWithProps?.map((slide, index) => (
           <>{slide}</>
         ))}
+        {loop && slidesWithProps[0]}
       </div>
       {withIndicators && (
         <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-          {slides.map((_, index) => (
+          {slidesWithProps.map((_, index) => (
             <button
               key={index}
               className={`w-2.5 h-2.5 rounded-full ${
-                index === activeIndex ? "bg-white" : ""
+                index === activeIndex - 1 ? "bg-white" : ""
               } border border-gray-400`}
               onClick={() => setActiveIndex(index)}
               aria-label={`Slide ${index + 1}`}
@@ -96,6 +132,7 @@ const Carousel = ({
           ))}
         </div>
       )}
+
       <div className="absolute top-1/2 transform -translate-y-1/2 flex justify-between text-sm w-full px-4 text-black">
         <button onClick={onPrev} className="bg-gray-200 px-4 py-1 rounded-full">
           Prev
@@ -108,22 +145,34 @@ const Carousel = ({
   );
 };
 
-const Slide = ({ children }: PropsWithChildren<{}>) => {
+const Slide = ({
+  children,
+  slideIndex,
+}: PropsWithChildren<{
+  slideIndex?: number;
+}>) => {
+  console.log("Slide", slideIndex);
+
   return (
-    <div className="grid place-items-center border w-full flex-grow-0 flex-shrink-0 basis-full">
+    <div
+      className={`grid place-items-center  w-full flex-grow-0 flex-shrink-0 basis-full ${
+        darkTailwindBgColors[slideIndex || 0]
+      } `}
+    >
       {children}
     </div>
   );
 };
+Slide.displayName = "Slide";
 
 Carousel.Slide = Slide;
 
 const CarouselDemo = () => {
   return (
     <Carousel>
+      <Carousel.Slide>0</Carousel.Slide>
       <Carousel.Slide>1</Carousel.Slide>
       <Carousel.Slide>2</Carousel.Slide>
-      <Carousel.Slide>3</Carousel.Slide>
     </Carousel>
   );
 };

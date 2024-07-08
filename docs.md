@@ -44,6 +44,13 @@ Steps :
 - Write the documentation
 
 
+RADIO :
+- Requirement
+- Architecture / High Level Design
+- Design Data Model
+- Interface Definition
+- Optimization & Deep Dive
+
 Questions:
     - Tic Tac Toe
     - Google AutoComplete 
