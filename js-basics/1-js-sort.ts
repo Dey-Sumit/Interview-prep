@@ -4,7 +4,7 @@
 // Given the array [7, 3, 9, 1, 4], how would you sort it in ascending order using the sort() method?
 
 /*
-    A negative value if a should be before b (i.e., a - b < 0).
+    A negative value if a should be before b (i.e., a - b < 0): means a is smaller, So a ,b
     Zero if a and b are considered equal (i.e., a - b === 0).
     A positive value if a should be after b (i.e., a - b > 0).
 */

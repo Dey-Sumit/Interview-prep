@@ -20,6 +20,8 @@ export default function RootLayout({
         {children}
 
         <div id="modal-root"></div>
+        {/* <!-- Portal root for toasts --> */}
+        <div id="toast-root"></div>
       </body>
     </html>
   );
