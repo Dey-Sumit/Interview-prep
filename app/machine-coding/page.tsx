@@ -17,6 +17,9 @@ const MACHINE_CODING_PROBLEMS = [
   {
     slug: "carousel",
   },
+  {
+    slug: "rating",
+  },
 ];
 
 const Page = () => {
