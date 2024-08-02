@@ -3,6 +3,7 @@ import React, { useState, ReactNode, Children, cloneElement } from "react";
 interface CarouselProps {
   children: ReactNode;
   slidesPerView: number; // new prop
+  step: number; // Number of slides to skip per navigation
 }
 
 interface CarouselProps {
@@ -10,21 +11,31 @@ interface CarouselProps {
   slidesPerView: number;
 }
 
-const Carousel: React.FC<CarouselProps> = ({ children, slidesPerView }) => {
+const Carousel: React.FC<CarouselProps> = ({ children, slidesPerView, step }) => {
   const items = Children.toArray(children);
   const [pageIndex, setPageIndex] = useState(0);
+  const totalPages = Math.ceil(items.length / slidesPerView);
 
   const goToPrevious = () => {
-    setPageIndex((prevPageIndex) =>
-      prevPageIndex === 0 ? Math.ceil(items.length / slidesPerView) - 1 : prevPageIndex - 1
-    );
+    setPageIndex((prevPageIndex) => {
+      // prevPageIndex === 0 ? Math.ceil(items.length / slidesPerView) - 1 : prevPageIndex - 1
+      const newIndex = prevPageIndex - step;
+      return newIndex < 0 ? totalPages - 1 : newIndex;
+    });
   };
 
   const goToNext = () => {
+    setPageIndex((prevPageIndex) => {
+      const newIndex = prevPageIndex + step;
+      return newIndex >= totalPages ? 0 : newIndex;
+    });
+  };
+
+  /*   const goToNext = () => {
     setPageIndex((prevPageIndex) =>
       prevPageIndex === Math.ceil(items.length / slidesPerView) - 1 ? 0 : prevPageIndex + 1
     );
-  };
+  }; */
 
   return (
     <div className="relative overflow-hidden">
@@ -72,7 +83,7 @@ const CarouselItem: React.FC<CarouselItemProps> = ({ children, style }) => {
 const App: React.FC = () => {
   return (
     <div className="max-w-lg mx-auto">
-      <Carousel slidesPerView={2}>
+      <Carousel slidesPerView={2} step={2}>
         <CarouselItem>
           <div className="h-64 bg-blue-500 flex items-center justify-center text-white text-xl">
             Slide 1
