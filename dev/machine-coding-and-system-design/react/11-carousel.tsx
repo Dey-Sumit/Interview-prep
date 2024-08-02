@@ -1,181 +1,106 @@
-{
-  /* <Carousel withIndicators height={200}>
-  <Carousel.Slide>1</Carousel.Slide>
-  <Carousel.Slide>2</Carousel.Slide>
-  <Carousel.Slide>3</Carousel.Slide>
-</Carousel>; */
+import React, { useState, ReactNode, Children, cloneElement } from "react";
+
+interface CarouselProps {
+  children: ReactNode;
+  slidesPerView: number; // new prop
 }
 
-export const darkTailwindBgColors = [
-  "bg-gray-800",
-  "bg-red-800",
-  "bg-yellow-800",
-  "bg-green-800",
-  "bg-blue-800",
-  "bg-indigo-800",
-  "bg-purple-800",
-  "bg-pink-800",
-  "bg-gray-900",
-  "bg-red-900",
-  "bg-yellow-900",
-  "bg-green-900",
-  "bg-blue-900",
-  "bg-indigo-900",
-  "bg-purple-900",
-  "bg-pink-900",
-  "bg-gray-950",
-];
+interface CarouselProps {
+  children: React.ReactNode;
+  slidesPerView: number;
+}
 
-/*
-- state to keep active index
-- navigation buttons
-- pagination
-- logic to handle the slide
-- render the children (row wise for now) 
+const Carousel: React.FC<CarouselProps> = ({ children, slidesPerView }) => {
+  const items = Children.toArray(children);
+  const [pageIndex, setPageIndex] = useState(0);
 
-*/
-
-import React, { useState, PropsWithChildren, ReactNode } from "react";
-
-type CarouselProps = {
-  children: ReactNode;
-  withIndicators?: boolean;
-  height?: number;
-  width?: number;
-  loop?: boolean;
-};
-
-const Carousel = ({
-  children,
-  withIndicators = true,
-  height = 300,
-  width = 600,
-  loop = true,
-}: CarouselProps) => {
-  const [activeIndex, setActiveIndex] = useState(loop ? 1 : 0);
-  const [transitionDuration, setTransitionDuration] = useState(300);
-
-  //  const slides = React.Children.toArray(children);
-  const slidesWithProps =
-    React.Children.map(children, (child, index) =>
-      React.cloneElement(child as React.ReactElement<any>, { slideIndex: index })
-    ) || [];
-
-  const totalSlides = slidesWithProps?.length || 0;
-
-  const onPrev = () => {
-    setTransitionDuration(300);
-    setActiveIndex((currentActiveIndex) => {
-      const newIndex = currentActiveIndex - 1;
-      if (loop) {
-        return newIndex < 0 ? totalSlides : newIndex;
-      }
-      return newIndex < 0 ? totalSlides - 1 : newIndex;
-    });
+  const goToPrevious = () => {
+    setPageIndex((prevPageIndex) =>
+      prevPageIndex === 0 ? Math.ceil(items.length / slidesPerView) - 1 : prevPageIndex - 1
+    );
   };
 
-  const onNext = () => {
-    setTransitionDuration(300);
-
-    setActiveIndex((currentActiveIndex) => {
-      const newIndex = currentActiveIndex + 1;
-      if (loop) {
-        return newIndex > totalSlides + 1 ? 0 : newIndex;
-      }
-      return newIndex > totalSlides - 1 ? 0 : newIndex;
-    });
-  };
-
-  const handleTransitionEnd = () => {
-    if (loop) {
-      if (activeIndex === 0) {
-        setTransitionDuration(0);
-        setActiveIndex(totalSlides);
-      } else if (activeIndex === totalSlides + 1) {
-        setTransitionDuration(0);
-        setActiveIndex(1);
-      }
-    }
+  const goToNext = () => {
+    setPageIndex((prevPageIndex) =>
+      prevPageIndex === Math.ceil(items.length / slidesPerView) - 1 ? 0 : prevPageIndex + 1
+    );
   };
 
   return (
-    <div
-      className="relative flex flex-col border overflow-hidden "
-      style={{ height: `${height}px`, width: `${width}px` }}
-    >
+    <div className="relative overflow-hidden">
       <div
-        className="flex h-full transition-transform"
-        style={{
-          transform: `translateX(-${activeIndex * 100}%)`,
-          transitionDuration: `${transitionDuration}ms`,
-        }}
-        onTransitionEnd={handleTransitionEnd}
+        className="flex transition-transform duration-300"
+        style={{ transform: `translateX(-${(pageIndex * 100) / slidesPerView}%)` }}
       >
-        {/* 2 0 1 2 0         */}
-        {loop && slidesWithProps[totalSlides - 1]}
-
-        {slidesWithProps?.map((slide, index) => (
-          <>{slide}</>
-        ))}
-        {loop && slidesWithProps[0]}
+        {items.map((item, index) =>
+          cloneElement(item as React.ReactElement, {
+            key: index,
+            style: { flex: `0 0 ${100 / slidesPerView}%` },
+          })
+        )}
       </div>
-      {withIndicators && (
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-          {slidesWithProps.map((_, index) => (
-            <button
-              key={index}
-              className={`w-2.5 h-2.5 rounded-full ${
-                index === activeIndex - 1 ? "bg-white" : ""
-              } border border-gray-400`}
-              onClick={() => setActiveIndex(index)}
-              aria-label={`Slide ${index + 1}`}
-            />
-          ))}
-        </div>
-      )}
-
-      <div className="absolute top-1/2 transform -translate-y-1/2 flex justify-between text-sm w-full px-4 text-black">
-        <button onClick={onPrev} className="bg-gray-200 px-4 py-1 rounded-full">
-          Prev
-        </button>
-        <button onClick={onNext} className="bg-gray-200 px-4 py-1 rounded-full">
-          Next
-        </button>
-      </div>
+      <button
+        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-2"
+        onClick={goToPrevious}
+        aria-label="Previous"
+      >
+        Previous
+      </button>
+      <button
+        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-2"
+        onClick={goToNext}
+        aria-label="Next"
+      >
+        Next
+      </button>
     </div>
   );
 };
 
-const Slide = ({
-  children,
-  slideIndex,
-}: PropsWithChildren<{
-  slideIndex?: number;
-}>) => {
-  console.log("Slide", slideIndex);
+interface CarouselItemProps {
+  children: React.ReactNode;
+}
 
+const CarouselItem: React.FC<CarouselItemProps> = ({ children, style }) => {
   return (
-    <div
-      className={`grid place-items-center  w-full flex-grow-0 flex-shrink-0 basis-full ${
-        darkTailwindBgColors[slideIndex || 0]
-      } `}
-    >
+    <div className=" flex-shrink-0" style={style}>
       {children}
     </div>
   );
 };
-Slide.displayName = "Slide";
 
-Carousel.Slide = Slide;
-
-const CarouselDemo = () => {
+const App: React.FC = () => {
   return (
-    <Carousel>
-      <Carousel.Slide>0</Carousel.Slide>
-      <Carousel.Slide>1</Carousel.Slide>
-      <Carousel.Slide>2</Carousel.Slide>
-    </Carousel>
+    <div className="max-w-lg mx-auto">
+      <Carousel slidesPerView={2}>
+        <CarouselItem>
+          <div className="h-64 bg-blue-500 flex items-center justify-center text-white text-xl">
+            Slide 1
+          </div>
+        </CarouselItem>
+        <CarouselItem>
+          <div className="h-64 bg-red-500 flex items-center justify-center text-white text-xl">
+            Slide 2
+          </div>
+        </CarouselItem>
+        <CarouselItem>
+          <div className="h-64 bg-green-500 flex items-center justify-center text-white text-xl">
+            Slide 3
+          </div>
+        </CarouselItem>
+        <CarouselItem>
+          <div className="h-64 bg-green-400 flex items-center justify-center text-white text-xl">
+            Slide 4
+          </div>
+        </CarouselItem>
+        <CarouselItem>
+          <div className="h-64 bg-green-300 flex items-center justify-center text-white text-xl">
+            Slide 5
+          </div>
+        </CarouselItem>
+      </Carousel>
+    </div>
   );
 };
 
-export default CarouselDemo;
+export default App;
