@@ -1,26 +1,22 @@
-import React, { useState, ReactNode, Children, cloneElement } from "react";
-
-interface CarouselProps {
-  children: ReactNode;
-  slidesPerView: number; // new prop
-  step: number; // Number of slides to skip per navigation
-}
+import React, { useState, Children, cloneElement } from "react";
 
 interface CarouselProps {
   children: React.ReactNode;
   slidesPerView: number;
+  step: number;
 }
 
-const Carousel: React.FC<CarouselProps> = ({ children, slidesPerView, step }) => {
+const Carousel: React.FC<CarouselProps> = ({ children, slidesPerView = 1, step = 1 }) => {
   const items = Children.toArray(children);
-  const [pageIndex, setPageIndex] = useState(0);
-  const totalPages = Math.ceil(items.length / slidesPerView);
+  const totalItems = items.length;
+
+  const totalPages = Math.ceil(totalItems / slidesPerView) + step; // 5/2 = 2.5 items per slide = total pages 3
+  const [pageIndex, setPageIndex] = useState(0); // ! LOOP! should be changed
 
   const goToPrevious = () => {
     setPageIndex((prevPageIndex) => {
-      // prevPageIndex === 0 ? Math.ceil(items.length / slidesPerView) - 1 : prevPageIndex - 1
       const newIndex = prevPageIndex - step;
-      return newIndex < 0 ? totalPages - 1 : newIndex;
+      return newIndex < totalPages ? newIndex : 0;
     });
   };
 
@@ -31,45 +27,56 @@ const Carousel: React.FC<CarouselProps> = ({ children, slidesPerView, step }) =>
     });
   };
 
-  /*   const goToNext = () => {
-    setPageIndex((prevPageIndex) =>
-      prevPageIndex === Math.ceil(items.length / slidesPerView) - 1 ? 0 : prevPageIndex + 1
-    );
-  }; */
-
   return (
-    <div className="relative overflow-hidden">
-      <div
-        className="flex transition-transform duration-300"
-        style={{ transform: `translateX(-${(pageIndex * 100) / slidesPerView}%)` }}
-      >
-        {items.map((item, index) =>
-          cloneElement(item as React.ReactElement, {
-            key: index,
-            style: { flex: `0 0 ${100 / slidesPerView}%` },
-          })
-        )}
+    <>
+      <div className="relative border">
+        <div
+          className="flex transition-transform duration-300 "
+          style={{ transform: `translateX(-${(pageIndex * 100) / slidesPerView}%)` }}
+        >
+          {items.map((item, index) =>
+            cloneElement(item as React.ReactElement, {
+              key: index,
+              style: { flex: `0 0 ${100 / slidesPerView}%` },
+            })
+          )}
+        </div>
+        <button
+          className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-2"
+          onClick={goToPrevious}
+          aria-label="Previous"
+        >
+          Previous
+        </button>
+        <button
+          className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-2"
+          onClick={goToNext}
+          aria-label="Next"
+        >
+          Next
+        </button>
       </div>
-      <button
-        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-2"
-        onClick={goToPrevious}
-        aria-label="Previous"
-      >
-        Previous
-      </button>
-      <button
-        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-2"
-        onClick={goToNext}
-        aria-label="Next"
-      >
-        Next
-      </button>
-    </div>
+      <div className="p-4">
+        <pre>
+          {JSON.stringify(
+            {
+              pageIndex,
+              totalPages,
+              totalItems,
+              slidesPerView,
+            },
+            null,
+            2
+          )}
+        </pre>
+      </div>
+    </>
   );
 };
 
 interface CarouselItemProps {
   children: React.ReactNode;
+  style?: React.CSSProperties;
 }
 
 const CarouselItem: React.FC<CarouselItemProps> = ({ children, style }) => {
@@ -85,28 +92,23 @@ const App: React.FC = () => {
     <div className="max-w-lg mx-auto">
       <Carousel slidesPerView={2} step={2}>
         <CarouselItem>
-          <div className="h-64 bg-blue-500 flex items-center justify-center text-white text-xl">
+          <div className="h-64 bg-blue-500 flex items-center justify-center text-white text-lg">
             Slide 1
           </div>
         </CarouselItem>
         <CarouselItem>
-          <div className="h-64 bg-red-500 flex items-center justify-center text-white text-xl">
+          <div className="h-64 bg-red-500 flex items-center justify-center text-white text-lg">
             Slide 2
           </div>
         </CarouselItem>
         <CarouselItem>
-          <div className="h-64 bg-green-500 flex items-center justify-center text-white text-xl">
+          <div className="h-64 bg-green-500 flex items-center justify-center text-white text-lg">
             Slide 3
           </div>
         </CarouselItem>
         <CarouselItem>
-          <div className="h-64 bg-green-400 flex items-center justify-center text-white text-xl">
+          <div className="h-64 bg-green-400 flex items-center justify-center text-white text-lg">
             Slide 4
-          </div>
-        </CarouselItem>
-        <CarouselItem>
-          <div className="h-64 bg-green-300 flex items-center justify-center text-white text-xl">
-            Slide 5
           </div>
         </CarouselItem>
       </Carousel>
