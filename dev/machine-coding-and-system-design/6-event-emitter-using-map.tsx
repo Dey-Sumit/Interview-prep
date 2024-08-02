@@ -2,8 +2,6 @@ class EventEmitter {
   private events: Map<string, Array<(data?: any) => void>> = new Map();
 
   public sub(eventName: string, listener: (data?: any) => void) {
-    console.log("subbed");
-
     const listeners = this.events.get(eventName) || [];
     listeners.push(listener);
     this.events.set(eventName, listeners);
@@ -23,5 +21,5 @@ class EventEmitter {
   }
 }
 
-const eventEmitterUsingMap = new EventEmitter();
-export default eventEmitterUsingMap;
+const eventEmitter = new EventEmitter();
+export default eventEmitter;

@@ -104,6 +104,8 @@ Accordion.Item = AccordionItem;
 Accordion.Trigger = AccordionTrigger;
 Accordion.Content = AccordionContent;
 
+
+
 // Example usage of the Accordion component
 const AccordionPage = () => {
   return (

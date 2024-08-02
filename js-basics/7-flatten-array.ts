@@ -101,7 +101,7 @@ const categories = [
   ["Kitchen", ["Microwave", "Refrigerator"]],
 ];
 
-const flatArray = (inputArray: any[], depth: number = Infinity) => {
+/* const flatArray = (inputArray: any[], depth: number = Infinity) => {
   if (!Array.isArray(inputArray)) {
     throw Error("Input is not a type of array");
   }
@@ -119,5 +119,20 @@ const flatArray = (inputArray: any[], depth: number = Infinity) => {
     }, []);
   };
   return flatten(inputArray, depth);
+}; */
+
+const flatArray = (inputs, depth = Infinity) => {
+  const inner = (inputArray, currentDepth) => {
+    if (!Array.isArray(inputArray) || currentDepth === 0) {
+      return [inputArray];
+    }
+
+    return inputArray.reduce((acc, curr) => {
+      acc.push(...inner(curr, currentDepth - 1));
+      return acc;
+    }, []);
+  };
+
+  return inner(inputs, depth);
 };
 flatArray(categories);

@@ -71,4 +71,5 @@ const longestUniqueSubStringSubArray = (input: string) => {
   return longestSubstring;
 };
 
-longestUniqueSubString("pwwkewa");
+longestUniqueSubString("pwwkewa");  //4
+longestUniqueSubStringSubArray("pwwkewa"); // 'kewa'

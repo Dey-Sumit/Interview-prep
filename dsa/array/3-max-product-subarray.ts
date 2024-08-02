@@ -74,5 +74,5 @@ function maxProductSubarraySubset(nums: number[]) {
 }
 
 // Example usage:
-console.log(maxProductSubarraySubset([2, 3, -2, 4, 2])); // Output: [2, 3]
+console.log(maxProductSubarraySubset([2, 3, -2, 4, 2])); // Output: [4, 2]
 console.log(maxProductSubarray([2, 3, -2, 4, 2])); // Output: 8

@@ -21,22 +21,20 @@ export const useDebounce = <T,>(value: T, delay: number) => {
 import { useCallback, useRef } from "react";
 
 export const useDebouncedCallback = (callback: (...args: any[]) => void, delay: number) => {
-  const timer = useRef<number | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const debouncedCallback = useCallback(
+  return useCallback(
     (...args: any[]) => {
-      if (timer.current !== null) {
-        clearTimeout(timer.current);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
-      timer.current = window.setTimeout(() => {
+
+      timeoutRef.current = setTimeout(() => {
         callback(...args);
-        timer.current = null;
       }, delay);
     },
     [callback, delay]
   );
-
-  return debouncedCallback;
 };
 /*
   const [value, setValue] = useState('');

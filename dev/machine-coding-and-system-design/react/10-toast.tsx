@@ -1,12 +1,12 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import eventEmitterUsingMap from "../6-event-emitter-using-map";
+import eventEmitter from "../6-event-emitter-using-map";
 import { cn } from "@/utils";
 
 export const ToastPage = () => {
   const addToast = (type: string, text: string, duration: number) => {
-    eventEmitterUsingMap.pub("toast", { text, options: { type, duration } });
+    eventEmitter.pub("toast", { text, options: { type, duration } });
   };
 
   return (
@@ -71,7 +71,7 @@ const Toaster = () => {
   );
 
   useEffect(() => {
-    return eventEmitterUsingMap.sub("toast", addNewToast);
+    return eventEmitter.sub("toast", addNewToast);
   }, [addNewToast]);
 
   const onToastRemove = useCallback((toastId: string) => {
